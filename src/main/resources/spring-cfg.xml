@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+    <context:annotation-config/>
+    <!--自动扫描service-->
+    <context:component-scan base-package="org.lanqiao.ssmDemo.service"></context:component-scan>
+
+    <!--配置数据源-->
+    <!--<context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>-->
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:jdbc.properties"></property>
+    </bean>
+    <bean id="mydatasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    <!--SqlSession-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="mydatasource"></property>
+        <!--注入mybatis的主配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+    </bean>
+    <!-- 动态扫描mapper，生成动态代理-->
+    <bean id="mapperFactoryBean"  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <property name="basePackage" value="org.lanqiao.ssmDemo.mapper"></property>
+    </bean>
+
+    <!--事务管理-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="mydatasource"></property>
+    </bean>
+    <!--事务通知-->
+    <!--<tx:annotation-driven transaction-manager="txManager"></tx:annotation-driven>-->
+
+</beans>
